@@ -732,6 +732,10 @@ html[data-text-size] :is(.line-clamp-2, .line-clamp-3) {
 
 .portal-document-content {
   min-inline-size: 0;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
   line-height: 1.65;
 }
 

@@ -13,7 +13,8 @@ interface Props {
 }
 
 export function ConcursoDocuments({ documentos, concursoSlug }: Props) {
-  if (documentos.length === 0) return null;
+  const documentosDisponibles = documentos.filter((doc) => doc.kind === 'postulacion' || Boolean(doc.download_url));
+  if (documentosDisponibles.length === 0) return null;
 
   return (
     <div className="card bg-base-100 border border-base-300/50">
@@ -24,7 +25,7 @@ export function ConcursoDocuments({ documentos, concursoSlug }: Props) {
         </h2>
 
         <ul role="list" className="space-y-2">
-          {documentos.map((doc) => {
+          {documentosDisponibles.map((doc) => {
             const documentName = normalizeDocumentName(doc.nombre);
             const isPrimary = doc.id === 'bases-concurso';
             const postula = doc.kind === 'postulacion';

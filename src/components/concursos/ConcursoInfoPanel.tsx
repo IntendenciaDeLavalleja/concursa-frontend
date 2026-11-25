@@ -1,58 +1,44 @@
 import { FileText, ClipboardList, Files, UserCheck, Wrench, Mail, BookOpen } from 'lucide-react';
 import type { Concurso } from '@/types';
-import { sanitizeHtml } from '@/lib/sanitizeHtml';
+import { hasVisibleText, sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface Props {
   concurso: Concurso;
 }
 
+const richTextSections = [
+  { field: 'descripcion', icon: FileText, title: 'Descripción' },
+  { field: 'requisitos_excluyentes', icon: ClipboardList, title: 'Requisitos Excluyentes' },
+  { field: 'requisitos_valorados', icon: ClipboardList, title: 'Requisitos Valorados' },
+  { field: 'perfil_buscado', icon: UserCheck, title: 'Perfil Buscado' },
+  { field: 'tareas_funciones', icon: Wrench, title: 'Tareas y Funciones' },
+  { field: 'documentacion_requerida', icon: Files, title: 'Documentación requerida' },
+  { field: 'forma_postulacion', icon: BookOpen, title: 'Forma de Postulación' },
+] as const;
+
 export function ConcursoInfoPanel({ concurso }: Props) {
+  const sectionsWithContent = richTextSections
+    .map((section) => ({
+      ...section,
+      html: sanitizeHtml(concurso[section.field], { requireText: true }),
+    }))
+    .filter(({ html }) => Boolean(html));
+  const contacto = concurso.contacto_consulta?.replaceAll('\u00a0', ' ').trim();
+  const showContact = hasVisibleText(contacto);
+
+  if (sectionsWithContent.length === 0 && !showContact) return null;
+
   return (
     <div className="space-y-6">
-      {/* Description */}
-      <InfoSection icon={FileText} title="Descripción">
-        <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.descripcion) }} />
-      </InfoSection>
-
-      {concurso.requisitos_excluyentes && (
-        <InfoSection icon={ClipboardList} title="Requisitos Excluyentes">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.requisitos_excluyentes) }} />
+      {sectionsWithContent.map(({ field, icon, title, html }) => (
+        <InfoSection key={field} icon={icon} title={title}>
+          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: html }} />
         </InfoSection>
-      )}
+      ))}
 
-      {concurso.requisitos_valorados && (
-        <InfoSection icon={ClipboardList} title="Requisitos Valorados">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.requisitos_valorados) }} />
-        </InfoSection>
-      )}
-
-      {concurso.perfil_buscado && (
-        <InfoSection icon={UserCheck} title="Perfil Buscado">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.perfil_buscado) }} />
-        </InfoSection>
-      )}
-
-      {concurso.tareas_funciones && (
-        <InfoSection icon={Wrench} title="Tareas y Funciones">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.tareas_funciones) }} />
-        </InfoSection>
-      )}
-
-      {concurso.documentacion_requerida && (
-        <InfoSection icon={Files} title="Documentación requerida">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.documentacion_requerida) }} />
-        </InfoSection>
-      )}
-
-      {concurso.forma_postulacion && (
-        <InfoSection icon={BookOpen} title="Forma de Postulación">
-          <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.forma_postulacion) }} />
-        </InfoSection>
-      )}
-
-      {concurso.contacto_consulta && (
+      {showContact && (
         <InfoSection icon={Mail} title="Contacto para Consultas">
-          <p className="text-sm text-muted">{concurso.contacto_consulta}</p>
+          <p className="portal-document-content text-sm text-muted">{contacto}</p>
         </InfoSection>
       )}
     </div>

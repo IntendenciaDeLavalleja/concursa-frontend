@@ -34,6 +34,8 @@ export default function ConcursoDetailPage() {
     );
   }
 
+  const normativa = sanitizeHtml(concurso.normativa, { requireText: true });
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 lg:px-8">
       <Breadcrumbs
@@ -76,11 +78,11 @@ export default function ConcursoDetailPage() {
           </div>
         </div>
 
-        {concurso.normativa && (
+        {normativa && (
           <div className="card bg-base-200/50 border border-base-300/50">
             <div className="card-body p-4">
               <h2 className="font-heading text-xl font-semibold">Normativa</h2>
-              <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(concurso.normativa) }} />
+              <div className="portal-document-content" dangerouslySetInnerHTML={{ __html: normativa }} />
             </div>
           </div>
         )}
